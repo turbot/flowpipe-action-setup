@@ -66,7 +66,7 @@ describe('getFlowpipeReleases', () => {
     }));
 
     // Mock implementation to simulate pagination
-    https.get.mockImplementation((url, options, callback) => {
+    https.get.mockImplementation((url, _, callback) => {
       const urlObj = new URL(url);
       const page = parseInt(urlObj.searchParams.get('page'));
       const perPage = parseInt(urlObj.searchParams.get('per_page'));
@@ -105,7 +105,7 @@ describe('getFlowpipeReleases', () => {
     }));
 
     // Mock implementation to simulate pagination
-    https.get.mockImplementation((url, options, callback) => {
+    https.get.mockImplementation((url, _, callback) => {
       const urlObj = new URL(url);
       const page = parseInt(urlObj.searchParams.get('page'));
       const perPage = parseInt(urlObj.searchParams.get('per_page'));
@@ -144,7 +144,7 @@ describe('getFlowpipeReleases', () => {
     }));
 
     // Mock implementation to simulate pagination
-    https.get.mockImplementation((url, options, callback) => {
+    https.get.mockImplementation((url, _, callback) => {
       const urlObj = new URL(url);
       const page = parseInt(urlObj.searchParams.get('page'));
       const perPage = parseInt(urlObj.searchParams.get('per_page'));
@@ -183,7 +183,7 @@ describe('getFlowpipeReleases', () => {
     }));
 
     // Mock implementation to simulate pagination
-    https.get.mockImplementation((url, options, callback) => {
+    https.get.mockImplementation((url, _, callback) => {
       const urlObj = new URL(url);
       const page = parseInt(urlObj.searchParams.get('page'));
       const perPage = parseInt(urlObj.searchParams.get('per_page'));
@@ -222,7 +222,7 @@ describe('getFlowpipeReleases', () => {
     }));
 
     // Mock implementation to simulate pagination
-    https.get.mockImplementation((url, options, callback) => {
+    https.get.mockImplementation((url, _, callback) => {
       const urlObj = new URL(url);
       const page = parseInt(urlObj.searchParams.get('page'));
       const perPage = parseInt(urlObj.searchParams.get('per_page'));
