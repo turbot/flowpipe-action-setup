@@ -1,5 +1,5 @@
 const https = require("https");
-const { Readable } = require("stream"); // Import Readable from the 'stream' module
+const { Readable } = require("stream");
 const { checkPlatform, getFlowpipeReleases } = require("./installer");
 
 jest.mock("https", () => ({
