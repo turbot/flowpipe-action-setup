@@ -4,29 +4,6 @@ const { Readable } = require("stream");
 const semver = require("semver");
 const { getFlowpipeReleases } = require("./installer");
 
-function getVersionFromSpec(releases, desiredVersion = undefined) {
-  releases.sort((a, b) => semver.compare(b.tag_name, a.tag_name));
-
-  let foundVersion;
-  if (desiredVersion === "latest" || desiredVersion === "" || desiredVersion === undefined) {
-    foundVersion = releases[0];
-  } else if (semver.valid(desiredVersion)) {
-    // Check if desiredVersion is a valid semantic version before finding
-    foundVersion = releases.find((item) => semver.eq(item.tag_name, desiredVersion)) || undefined;
-  } else {
-    // If desiredVersion is not valid, return undefined
-    foundVersion = undefined;
-  }
-
-  if (foundVersion) {
-    core.debug(`Matched Flowpipe CLI version: ${foundVersion}`);
-  } else {
-    core.debug(`No matching Flowpipe CLI version found for ${desiredVersion}`);
-  }
-
-  return foundVersion;
-}
-
 jest.mock("https", () => ({
   get: jest.fn(),
 }));
