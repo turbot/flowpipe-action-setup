@@ -1,4 +1,5 @@
 const core = require("@actions/core");
+const tc = require("@actions/tool-cache");
 const semver = require("semver");
 const https = require("https");
 const process = require("process");
@@ -19,12 +20,14 @@ function checkPlatform(p = process) {
   }
 }
 
-function httpsGet(url) {
+function httpsGet(url, useReal = true) {
   return new Promise((resolve, reject) => {
     const options = {
       headers: {
         'User-Agent': 'setup-flowpipe' // Use your app name or GitHub username
-      }
+      },
+      // Set rejectUnauthorized here, outside of headers
+      rejectUnauthorized: useReal
     };
 
     https.get(url, options, (res) => {
@@ -51,8 +54,13 @@ function httpsGet(url) {
   });
 }
 
-async function getFlowpipeReleases(perPage = 100, maxResults = Infinity) {
-  const url = 'https://api.github.com/repos/turbot/flowpipe/releases';
+async function getFlowpipeReleases(perPage = 100, maxResults = Infinity, useReal = true) {
+  var url = 'https://api.github.com/repos/turbot/flowpipe/releases';
+
+  if (!useReal) {
+    url = 'https://localhost:3000/repos/turbot/flowpipe/releases';
+  }
+
   let releases = [];
   let page = 1;
   let hasNextPage = true;
@@ -61,8 +69,8 @@ async function getFlowpipeReleases(perPage = 100, maxResults = Infinity) {
   while (hasNextPage && totalCollected < maxResults) {
     try {
       const fullUrl = `${url}?per_page=${perPage}&page=${page}`;
-      const { body: releasesData, headers: responseHeaders } = await httpsGet(fullUrl);
-      
+      const { body: releasesData, headers: responseHeaders } = await httpsGet(fullUrl, useReal);
+
       // If maxResults is exceeded, trim the results
       if (totalCollected + releasesData.length > maxResults) {
         releases = releases.concat(releasesData.slice(0, maxResults - totalCollected));
@@ -109,8 +117,44 @@ function getVersionFromSpec(releases, desiredVersion = undefined) {
   return foundVersion;
 }
 
+async function installFlowpipe(flowpipeVersion) {
+  const toolPath = tc.find("flowpipe", flowpipeVersion, process.arch);
+
+  if (toolPath) {
+    core.info(`Found in cache @ ${toolPath}`);
+    return toolPath;
+  } else {
+    const targets = {
+      linux: {
+        x64: "linux.amd64.tar.gz",
+        arm64: "linux.arm64.tar.gz",
+      },
+      darwin: {
+        x64: "darwin.amd64.zip",
+        arm64: "darwin.arm64.zip",
+      },
+    };
+    const target = targets[process.platform][process.arch];
+
+    const downloadUrl = `https://github.com/turbot/flowpipe/releases/download/${flowpipeVersion}/flowpipe.${target}`;
+    core.info(`Flowpipe download URL: ${downloadUrl.toString()}`);
+
+    const flowpipeArchivePath = await tc.downloadTool(downloadUrl);
+    const extractFolder = await (async () => {
+      if (process.platform === "linux") {
+        return tc.extractTar(flowpipeArchivePath);
+      } else {
+        return tc.extractZip(flowpipeArchivePath);
+      }
+    })();
+
+    return await tc.cacheDir(extractFolder, "flowpipe", flowpipeVersion, process.arch);
+  }
+}
+
 module.exports = {
   checkPlatform,
   getFlowpipeReleases,
-  getVersionFromSpec
+  getVersionFromSpec,
+  installFlowpipe
 };
