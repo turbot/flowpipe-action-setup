@@ -1,5 +1,6 @@
 const core = require("@actions/core");
-const tc = require("@actions/tool-cache");
+const fs = require("fs");
+const path = require('path');
 const exec = require("@actions/exec");
 const {
   checkPlatform,
@@ -46,9 +47,15 @@ async function run() {
     // // to prevent the CLI update check too
     // await createDefaultFpc();
 
+    // Check if the the release was correctly installed
+    if (!fs.existsSync(path.join(flowpipePath, "flowpipe"))) {
+      core.setFailed(`The binary flowpipe is not in the expected location using the version ${version} of flowpipe`);
+      return
+    }
+
     // Run a simple query to start the Steampipe service and initialize the DB
     core.debug(`Executing Flowpipe initialization check Pipeline`);
-    
+
     const options = { silent: false };
     await exec.exec("flowpipe", ["pipeline", "run", "local.pipeline.initialization", "--mod-location", "./initialization-mod"], options);
 
