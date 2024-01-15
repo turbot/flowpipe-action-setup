@@ -18,7 +18,7 @@ const {
 
 async function run() {
   try {
-    core.info("Starting Flowpipe CLI setup");
+    core.debug("Starting Flowpipe CLI setup");
     checkPlatform();
 
     const version = core.getInput("flowpipe-version", { required: false });
@@ -26,9 +26,9 @@ async function run() {
     var pluginsToInstall, uniquePluginsToInstall;
 
     // Limit to last 300 releases to reduce API calls
-    core.info("Retrieving last 300 Flowpipe releases");
+    core.debug("Retrieving last 300 Flowpipe releases");
     const flowpipeReleases = await getFlowpipeReleases(undefined, 300, false);
-    core.info("Checking for requested version");
+    core.debug("Checking for requested version");
     const foundVersion = getVersionFromSpec(flowpipeReleases, version);
 
     if (!foundVersion) {
