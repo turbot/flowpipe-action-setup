@@ -7,6 +7,7 @@ const {
   getFlowpipeReleases,
   getVersionFromSpec,
   installFlowpipe,
+  checkCreditionsSchemaValid
   // configureSteampipePlugins,
   // createDefaultSpc,
   // deletePluginConfigs,
@@ -23,7 +24,7 @@ async function run() {
     checkPlatform();
 
     const version = core.getInput("flowpipe-version", { required: false });
-    const pluginConns = core.getInput("mod-credentials", { required: false });
+    const modCredentials = core.getInput("mod-credentials", { required: false });
     var pluginsToInstall, uniquePluginsToInstall;
 
     // Limit to last 300 releases to reduce API calls
@@ -57,18 +58,20 @@ async function run() {
     
     const options = { silent: false };
     core.debug(`Executing Flowpipe initialization check Pipeline`);
-    await exec.exec("flowpipe", ["pipeline", "run", "local.pipeline.initialization", "--mod-location", "./initialization-mod"], options);
+    await exec.exec("flowpipe", ["pipeline", "run", "local.pipeline.checker", "--mod-location", "./pipelines"], options);
     core.debug(`Executing Flowpipe version information`);
     await exec.exec("flowpipe", ["-v"], options);
 
+    checkCreditionsSchemaValid(modCredentials);
+
     // Plugin installation and configuration is optional
-    if (pluginConns != "") {
-      pluginsToInstall = getPluginsToInstall(pluginConns);
+    if (modCredentials != "") {
+      pluginsToInstall = getPluginsToInstall(modCredentials);
       uniquePluginsToInstall = [...new Set(pluginsToInstall)];
       await installSteampipePlugins(uniquePluginsToInstall, foundVersion);
       // Remove default spc files created by plugin installation
       await deletePluginConfigs();
-      await writePluginConnections(pluginConns);
+      await writePluginConnections(modCredentials);
     }
 
     core.setOutput("steampipe-version", foundVersion);

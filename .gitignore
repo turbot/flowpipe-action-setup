@@ -68,3 +68,4 @@ typings/
 
 # Ignore flowpipe directory
 .flowpipe/
+pipelines/.mod.cache.json

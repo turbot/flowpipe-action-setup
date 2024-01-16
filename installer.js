@@ -1,5 +1,6 @@
 const core = require("@actions/core");
 const tc = require("@actions/tool-cache");
+const hcl = require("js-hcl-parser");
 const semver = require("semver");
 const https = require("https");
 const process = require("process");
@@ -24,9 +25,8 @@ function httpsGet(url, useReal = true) {
   return new Promise((resolve, reject) => {
     const options = {
       headers: {
-        'User-Agent': 'setup-flowpipe' // Use your app name or GitHub username
+        'User-Agent': 'setup-flowpipe'
       },
-      // Set rejectUnauthorized here, outside of headers
       rejectUnauthorized: useReal
     };
 
@@ -152,6 +152,30 @@ async function installFlowpipe(flowpipeVersion) {
   }
 }
 
+function checkCredentionsSchemaValid(credentials) {
+  // Check for JSON instead of HCL first since the HCL parse method accepts
+  // JSON strings
+  try {
+    JSON.parse(credentials);
+    return "json";
+    // Ignore errors so we can check if it's HCL
+  } catch (err) {
+    // ignore error
+  }
+
+  try {
+    hcl.parse(credentials);
+    return "hcl";
+    // Ignore errors so we can return unknown type
+  } catch (err) {
+    // ignore error
+  }
+
+  // Not HCL or JSON
+  return "unknown";
+}
+
+
 async function installFlowpipeMods(mods, steampipeVersion) {
   if (!plugins || plugins.length == 0) {
     return Promise.resolve();
@@ -166,7 +190,7 @@ async function installFlowpipeMods(mods, steampipeVersion) {
   if (semver.satisfies(steampipeVersion, ">=0.20.0")) {
     args.push("--progress=false");
   }
-  
+
   await exec.exec("steampipe", args);
 }
 
@@ -174,5 +198,6 @@ module.exports = {
   checkPlatform,
   getFlowpipeReleases,
   getVersionFromSpec,
+  checkCreditionsSchemaValid: checkCredentionsSchemaValid,
   installFlowpipe
 };

@@ -1,9 +1,9 @@
 mod "local" {
-  title       = "initialization-mod"
+  title       = "checker-mod"
   description = "Run a pipelines to check if Flowpipe is running."
 }
 
-pipeline "initialization" {
+pipeline "checker" {
   description = "Outputs the IP address for the server running flowpipe."
   step "http" "ip_address" {
     url = "https://api.ipify.org?format=json"
