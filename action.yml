@@ -1,19 +1,20 @@
 ---
 name: Setup Flowpipe
 description: >
-  Install Flowpipe and add it to the PATH. Optionally install plugins and create plugin connection configurations.
+  Install Flowpipe and add it to the PATH. Optionally adds credential configurations.
 author: Turbot
 branding:
-  color: red
-  icon: database
+  color: green
+  icon: check-circle
 inputs:
   flowpipe-version:
-    description: 'Flowpipe CLI version to install. Defaults to "latest". Examples: latest, 0.19.4, 0.20.8.'
+    description: 'Flowpipe CLI version to install. Defaults to "latest". Examples: latest, 0.1.0, 0.2.2.'
     default: latest
     required: false
 outputs:
   flowpipe-version:
     description: The version of Flowpipe that was installed.
 runs:
-  using: node16
+  # Latest version of Node.js 20.x at time of writing.
+  using: node20
   main: dist/index.js

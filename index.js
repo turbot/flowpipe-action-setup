@@ -7,7 +7,6 @@ const {
   getFlowpipeReleases,
   getVersionFromSpec,
   installFlowpipe,
-  getModsToInstall,
   writeModCredentials,
 } = require("./installer");
 
@@ -17,8 +16,7 @@ async function run() {
     checkPlatform();
 
     const version = core.getInput("flowpipe-version", { required: false });
-    const modCredentials = core.getInput("mod-credentials", { required: false });
-    var pluginsToInstall, uniquePluginsToInstall;
+    const credentials = core.getInput("mod-credentials", { required: false });
 
     // Limit to last 300 releases to reduce API calls
     core.debug("Retrieving last 300 Flowpipe releases");
@@ -34,6 +32,12 @@ async function run() {
     core.info(`Flowpipe CLI version: ${foundVersionNumber}`);
     const flowpipePath = await installFlowpipe(foundVersionNumber);
 
+    // Check if the the release was correctly installed
+    if (!fs.existsSync(path.join(flowpipePath, "flowpipe"))) {
+      throw new Error(`The binary flowpipe is not in the expected location using the version ${version} of flowpipe`);
+    }
+
+    // Add Flowpipe CLI to path
     core.addPath(flowpipePath);
     core.debug(`Added Flowpipe CLI to path`);
 
@@ -41,28 +45,12 @@ async function run() {
     // // to prevent the CLI update check too
     // await createDefaultFpc();
 
-    // Check if the the release was correctly installed
-    if (!fs.existsSync(path.join(flowpipePath, "flowpipe"))) {
-      core.setFailed(`The binary flowpipe is not in the expected location using the version ${version} of flowpipe`);
-      return
-    }
-
-    // Run a simple query to start the Steampipe service and initialize the DB
-    
-    const options = { silent: false };
-    core.debug(`Executing Flowpipe initialization check Pipeline`);
-    await exec.exec("flowpipe", ["pipeline", "run", "local.pipeline.checker", "--mod-location", "./pipelines"], options);
     core.debug(`Executing Flowpipe version information`);
+    const options = { silent: false };
     await exec.exec("flowpipe", ["-v"], options);
 
-    modsRequired = getModsToInstall(modCredentials);
-
-    if (modsRequired.length > 0) {
-      core.debug(`Installing required mods`);
-      await exec.exec("flowpipe", ["mod", "install", ...modsRequired], options);
-      core.debug(`Writing credentials for installed mods`);
-      writeModCredentials(modCredentials);
-    }
+    core.debug(`Checking for custom credentials`);
+    writeModCredentials(credentials);
 
     core.setOutput("steampipe-version", foundVersion);
   } catch (error) {

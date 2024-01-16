@@ -118,8 +118,8 @@ function getVersionFromSpec(releases, desiredVersion = undefined) {
   return foundVersion;
 }
 
-async function installFlowpipe(flowpipeVersion) {
-  const toolPath = tc.find("flowpipe", flowpipeVersion, process.arch);
+async function installFlowpipe(flowpipeVersion, arch = process.arch, platform = process.platform) {
+  const toolPath = tc.find("flowpipe", flowpipeVersion, arch);
 
   if (toolPath) {
     core.info(`Found in cache @ ${toolPath}`);
@@ -135,31 +135,40 @@ async function installFlowpipe(flowpipeVersion) {
         arm64: "darwin.arm64.zip",
       },
     };
-    const target = targets[process.platform][process.arch];
+    const target = targets[platform][arch];
 
     const downloadUrl = `https://github.com/turbot/flowpipe/releases/download/${flowpipeVersion}/flowpipe.${target}`;
     core.info(`Flowpipe download URL: ${downloadUrl.toString()}`);
 
     const flowpipeArchivePath = await tc.downloadTool(downloadUrl);
     const extractFolder = await (async () => {
-      if (process.platform === "linux") {
+      if (platform === "linux") {
         return tc.extractTar(flowpipeArchivePath);
       } else {
         return tc.extractZip(flowpipeArchivePath);
       }
     })();
 
-    return await tc.cacheDir(extractFolder, "flowpipe", flowpipeVersion, process.arch);
+    return await tc.cacheDir(extractFolder, "flowpipe", flowpipeVersion, arch);
   }
 }
 
-function getModsToInstall(credentials) {
+function hasCredentials(credentials) {
   if (credentials == "") {
-    return []
+    return false
   }
+
   res = hcl.stringify(credentials);
   if (res.startsWith("unable to parse HCL:")) {
     throw new Error("Unknown credentials config format");
+  }
+  
+  return true
+}
+
+function getModsToInstall(credentials) {
+  if (!hasCredentials(credentials)) {
+    return [];
   }
 
   let credentialsHclParsed = hcl.parse(credentials);
@@ -184,32 +193,49 @@ function getModsToInstall(credentials) {
   return (Array.from(uniqueCredentials).sort());
 }
 
-
-async function writeModCredentials(connections) {
-  let configType = getConnConfigType(connections);
-  let filePath = `${process.env.HOME}/.steampipe/config/connections`;
-  let fileExtension;
-  switch (configType) {
-    case "json":
-      fileExtension = ".json";
-      break;
-    case "hcl":
-      fileExtension = ".spc";
-      break;
-    default:
-      throw new Error("Unknown connection config format");
+async function writeModCredentials(credentials) {
+  if (!hasCredentials(credentials)) {
+    core.debug(`No custom credentials found`);
+    return;
   }
 
-  filePath += fileExtension;
-  core.info(`Writing connections into ${filePath}`);
-  await fsPromises.writeFile(filePath, connections);
+  const flowpipeConfigPath = path.join(process.env.HOME, ".flowpipe", "config");
+
+  await createFlowpipeConfigDir(flowpipeConfigPath);
+  await deleteExistingCredentials(flowpipeConfigPath)
+
+  const credentialPath = path.join(flowpipeConfigPath, "credentials.fpc");
+  core.info(`Writing credentials into ${credentialPath}`);
+  await fsPromises.writeFile(credentialPath , credentials);
 }
 
+async function createFlowpipeConfigDir(path) {
+  core.debug("Create Flowpipe config directory");
+  await fsPromises.mkdir(path, { recursive: true });
+}
+
+async function deleteExistingCredentials(configPath) {
+  core.info("Deleting existing files in Flowpipe config directory");
+  let contents = await fsPromises.readdir(
+    `${process.env.HOME}/.steampipe/config`
+  );
+
+  for (const entry of contents) {
+    if (entry !== 'workspaces.fpc.sample') {
+      core.debug("Removing file: " + entry);
+      await fsPromises.unlink(`${process.env.HOME}/.steampipe/config/${entry}`);
+    }
+  }
+}
 module.exports = {
   checkPlatform,
   getFlowpipeReleases,
   getVersionFromSpec,
   installFlowpipe,
-  getModsToInstall,
   writeModCredentials,
+
+  // Exported for testing
+  getModsToInstall,
+  createFlowpipeConfigDir,
+  deleteExistingCredentials
 };
