@@ -7,15 +7,8 @@ const {
   getFlowpipeReleases,
   getVersionFromSpec,
   installFlowpipe,
-  getModsToInstall
-  // configureSteampipePlugins,
-  // createDefaultSpc,
-  // deletePluginConfigs,
-  // getPluginsToInstall,
-  // getSteampipeVersions,
-  // installSteampipe,
-  // installSteampipePlugins,
-  // writePluginConnections,
+  getModsToInstall,
+  writeModCredentials,
 } = require("./installer");
 
 async function run() {
@@ -62,16 +55,13 @@ async function run() {
     core.debug(`Executing Flowpipe version information`);
     await exec.exec("flowpipe", ["-v"], options);
 
-    getModsToInstall(modCredentials);
+    modsRequired = getModsToInstall(modCredentials);
 
-    // Plugin installation and configuration is optional
-    if (modCredentials != "") {
-      pluginsToInstall = getPluginsToInstall(modCredentials);
-      uniquePluginsToInstall = [...new Set(pluginsToInstall)];
-      await installSteampipePlugins(uniquePluginsToInstall, foundVersion);
-      // Remove default spc files created by plugin installation
-      await deletePluginConfigs();
-      await writePluginConnections(modCredentials);
+    if (modsRequired.length > 0) {
+      core.debug(`Installing required mods`);
+      await exec.exec("flowpipe", ["mod", "install", ...modsRequired], options);
+      core.debug(`Writing credentials for installed mods`);
+      writeModCredentials(modCredentials);
     }
 
     core.setOutput("steampipe-version", foundVersion);

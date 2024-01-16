@@ -154,7 +154,7 @@ async function installFlowpipe(flowpipeVersion) {
 }
 
 function getModsToInstall(credentials) {
-  if (credentials == ""){
+  if (credentials == "") {
     return []
   }
   res = hcl.stringify(credentials);
@@ -172,7 +172,7 @@ function getModsToInstall(credentials) {
   }
 
   let uniqueCredentials = new Set();
-  
+
   if (credentialsJsonParsed && Array.isArray(credentialsJsonParsed["credential"])) {
     for (const credential of credentialsJsonParsed["credential"]) {
       for (const key of Object.keys(credential)) {
@@ -185,28 +185,31 @@ function getModsToInstall(credentials) {
 }
 
 
-async function installFlowpipeMods(mods, steampipeVersion) {
-  if (!plugins || plugins.length == 0) {
-    return Promise.resolve();
+async function writeModCredentials(connections) {
+  let configType = getConnConfigType(connections);
+  let filePath = `${process.env.HOME}/.steampipe/config/connections`;
+  let fileExtension;
+  switch (configType) {
+    case "json":
+      fileExtension = ".json";
+      break;
+    case "hcl":
+      fileExtension = ".spc";
+      break;
+    default:
+      throw new Error("Unknown connection config format");
   }
 
-  core.info(`Installing plugins: ${plugins}`);
-
-  const args = ["plugin", "install", ...plugins];
-
-  // The progress flag is only available >=0.20.0 and helps hide noisy progress
-  // bars
-  if (semver.satisfies(steampipeVersion, ">=0.20.0")) {
-    args.push("--progress=false");
-  }
-
-  await exec.exec("steampipe", args);
+  filePath += fileExtension;
+  core.info(`Writing connections into ${filePath}`);
+  await fsPromises.writeFile(filePath, connections);
 }
 
 module.exports = {
   checkPlatform,
   getFlowpipeReleases,
   getVersionFromSpec,
+  installFlowpipe,
   getModsToInstall,
-  installFlowpipe
+  writeModCredentials,
 };
