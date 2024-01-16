@@ -152,6 +152,24 @@ async function installFlowpipe(flowpipeVersion) {
   }
 }
 
+async function installFlowpipeMods(mods, steampipeVersion) {
+  if (!plugins || plugins.length == 0) {
+    return Promise.resolve();
+  }
+
+  core.info(`Installing plugins: ${plugins}`);
+
+  const args = ["plugin", "install", ...plugins];
+
+  // The progress flag is only available >=0.20.0 and helps hide noisy progress
+  // bars
+  if (semver.satisfies(steampipeVersion, ">=0.20.0")) {
+    args.push("--progress=false");
+  }
+  
+  await exec.exec("steampipe", args);
+}
+
 module.exports = {
   checkPlatform,
   getFlowpipeReleases,

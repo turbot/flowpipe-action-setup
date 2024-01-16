@@ -23,7 +23,7 @@ async function run() {
     checkPlatform();
 
     const version = core.getInput("flowpipe-version", { required: false });
-    const pluginConns = core.getInput("plugin-connections");
+    const pluginConns = core.getInput("mod-credentials", { required: false });
     var pluginsToInstall, uniquePluginsToInstall;
 
     // Limit to last 300 releases to reduce API calls
@@ -54,10 +54,12 @@ async function run() {
     }
 
     // Run a simple query to start the Steampipe service and initialize the DB
-    core.debug(`Executing Flowpipe initialization check Pipeline`);
-
+    
     const options = { silent: false };
+    core.debug(`Executing Flowpipe initialization check Pipeline`);
     await exec.exec("flowpipe", ["pipeline", "run", "local.pipeline.initialization", "--mod-location", "./initialization-mod"], options);
+    core.debug(`Executing Flowpipe version information`);
+    await exec.exec("flowpipe", ["-v"], options);
 
     // Plugin installation and configuration is optional
     if (pluginConns != "") {
