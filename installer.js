@@ -4,6 +4,7 @@ const hcl = require("js-hcl-parser");
 const semver = require("semver");
 const https = require("https");
 const process = require("process");
+const { stringify } = require("querystring");
 
 const supportedPlatforms = ["linux", "darwin"];
 const supportedArchitectures = ["x64", "arm64"];
@@ -152,27 +153,35 @@ async function installFlowpipe(flowpipeVersion) {
   }
 }
 
-function checkCredentionsSchemaValid(credentials) {
-  // Check for JSON instead of HCL first since the HCL parse method accepts
-  // JSON strings
-  try {
-    JSON.parse(credentials);
-    return "json";
-    // Ignore errors so we can check if it's HCL
-  } catch (err) {
-    // ignore error
+function getModsToInstall(credentials) {
+  if (credentials == ""){
+    return []
+  }
+  res = hcl.stringify(credentials);
+  if (res.startsWith("unable to parse HCL:")) {
+    throw new Error("Unknown credentials config format");
   }
 
-  try {
-    hcl.parse(credentials);
-    return "hcl";
-    // Ignore errors so we can return unknown type
-  } catch (err) {
-    // ignore error
+  let credentialsHclParsed = hcl.parse(credentials);
+  let credentialsJsonParsed = JSON.parse(credentialsHclParsed);
+
+  if (!Object.getOwnPropertyDescriptor(credentialsJsonParsed, "credential")) {
+    throw new Error(
+      "Missing 'credential' key in mod-credentials input"
+    );
   }
 
-  // Not HCL or JSON
-  return "unknown";
+  let uniqueCredentials = new Set();
+  
+  if (credentialsJsonParsed && Array.isArray(credentialsJsonParsed["credential"])) {
+    for (const credential of credentialsJsonParsed["credential"]) {
+      for (const key of Object.keys(credential)) {
+        uniqueCredentials.add(key);
+      }
+    }
+  }
+
+  return (Array.from(uniqueCredentials).sort());
 }
 
 
@@ -198,6 +207,6 @@ module.exports = {
   checkPlatform,
   getFlowpipeReleases,
   getVersionFromSpec,
-  checkCreditionsSchemaValid: checkCredentionsSchemaValid,
+  getModsToInstall,
   installFlowpipe
 };

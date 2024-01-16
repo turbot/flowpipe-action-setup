@@ -7,7 +7,7 @@ const {
   getFlowpipeReleases,
   getVersionFromSpec,
   installFlowpipe,
-  checkCreditionsSchemaValid
+  getModsToInstall
   // configureSteampipePlugins,
   // createDefaultSpc,
   // deletePluginConfigs,
@@ -62,7 +62,7 @@ async function run() {
     core.debug(`Executing Flowpipe version information`);
     await exec.exec("flowpipe", ["-v"], options);
 
-    checkCreditionsSchemaValid(modCredentials);
+    getModsToInstall(modCredentials);
 
     // Plugin installation and configuration is optional
     if (modCredentials != "") {
