@@ -49,6 +49,30 @@ See [action.yml](action.yml).
 
 > For further information on credentials refer to [Managing Credentials](https://flowpipe.io/docs/run/credentials) or for available Flowpipe versions refer to [Flowpipe Releases](https://github.com/turbot/flowpipe/releases).
 
+
+## Advanced Examples
+
+### Run local controls
+
+```yaml
+steps:
+  - uses: actions/checkout@v3
+  - name: Setup Flowpipe
+    uses: turbot/flowpipe-action-setup@main
+    with:
+      flowpipe-version: 'latest'
+      mod-credentials: |
+        credential "github" "default" {
+          token = "${{ secrets.GH_TOKEN }}"
+        }
+  - name: Install mod and run pipeline
+    run: |
+        mkdir my-test
+        cd my-test
+        flowpipe mod install github.com/turbot/flowpipe-mod-github
+        flowpipe pipeline run github.pipeline.search_repositories --arg 'search_value=owner:turbot'
+```
+
 ## Helpful Links
 
 - [Flowpipe docs](https://flowpipe.io/docs)
