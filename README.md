@@ -28,7 +28,25 @@ See [action.yml](action.yml).
     flowpipe-version: 0.19.4
 ```
 
-> For available Steampipe versions refer to [Flowpipe Releases](https://github.com/turbot/flowpipe/releases).
+### Configure multiple AWS connections
+
+```yaml
+- name: Setup Steampipe
+  uses: turbot/steampipe-action-setup@v1
+  with:
+    mod-credentials: |
+      credential "aws" "aws_prod" {
+        access_key = "AKIA..."
+        secret_key = "dP+C+J..."
+      }
+
+      credential "aws" "aws_dev" {
+        access_key    = "AKIA..."
+        secret_key    = "dP+C+J..."
+        session_token = "AQoDX..."
+      }
+```
+> For further information on credentials refer to [Managing Credentials](https://flowpipe.io/docs/run/credentials) or for available Flowpipe versions refer to [Flowpipe Releases](https://github.com/turbot/flowpipe/releases).
 
 ## Helpful Links
 
