@@ -52,7 +52,7 @@ See [action.yml](action.yml).
 
 ## Advanced Examples
 
-### Run local controls
+### Run Flowpipe Mod pipeline
 
 ```yaml
 steps:
