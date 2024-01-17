@@ -176,7 +176,7 @@ async function deleteExistingCredentials(configPath) {
   for (const entry of contents) {
     if (entry !== 'workspaces.fpc') {
       core.debug("Removing file: " + entry);
-      entryPath = path.join(configPath, entry);
+      let entryPath = path.join(configPath, entry);
       await fsPromises.unlink(entryPath);
     }
   }
@@ -220,7 +220,7 @@ function hasCredentials(credentials) {
     return false
   }
 
-  res = hcl.stringify(credentials);
+  let res = hcl.stringify(credentials);
   if (res.startsWith("unable to parse HCL:")) {
     throw new Error("Unknown credentials config format");
   }
