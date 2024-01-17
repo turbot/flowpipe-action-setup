@@ -1,6 +1,7 @@
 const core = require("@actions/core");
 const tc = require("@actions/tool-cache");
 const hcl = require("js-hcl-parser");
+const path = require("path")
 const semver = require("semver");
 const https = require("https");
 const process = require("process");
@@ -20,39 +21,6 @@ function checkPlatform(p = process) {
       )} using architectures ${supportedArchitectures.join(", ")}`
     );
   }
-}
-
-function httpsGet(url, useReal = true) {
-  return new Promise((resolve, reject) => {
-    const options = {
-      headers: {
-        'User-Agent': 'setup-flowpipe'
-      },
-      rejectUnauthorized: useReal
-    };
-
-    https.get(url, options, (res) => {
-      let data = '';
-
-      res.on('data', (chunk) => {
-        data += chunk;
-      });
-
-      res.on('end', () => {
-        try {
-          // Resolve with both the data and the headers
-          resolve({
-            body: JSON.parse(data),
-            headers: res.headers
-          });
-        } catch (e) {
-          reject(e);
-        }
-      });
-    }).on('error', (e) => {
-      reject(e);
-    });
-  });
 }
 
 async function getFlowpipeReleases(perPage = 100, maxResults = Infinity, useReal = true) {
@@ -153,17 +121,20 @@ async function installFlowpipe(flowpipeVersion, arch = process.arch, platform = 
   }
 }
 
-function hasCredentials(credentials) {
-  if (credentials == "") {
-    return false
+async function writeModCredentials(credentials) {
+  if (!hasCredentials(credentials)) {
+    core.debug(`No custom credentials found`);
+    return;
   }
 
-  res = hcl.stringify(credentials);
-  if (res.startsWith("unable to parse HCL:")) {
-    throw new Error("Unknown credentials config format");
-  }
-  
-  return true
+  const flowpipeConfigPath = path.join(process.env.HOME, ".flowpipe", "config");
+
+  await createFlowpipeConfigDir(flowpipeConfigPath);
+  await deleteExistingCredentials(flowpipeConfigPath)
+
+  const credentialPath = path.join(flowpipeConfigPath, "credentials.fpc");
+  core.info(`Writing credentials into ${credentialPath}`);
+  await fsPromises.writeFile(credentialPath , credentials);
 }
 
 function getModsToInstall(credentials) {
@@ -189,24 +160,8 @@ function getModsToInstall(credentials) {
       }
     }
   }
-
+  
   return (Array.from(uniqueCredentials).sort());
-}
-
-async function writeModCredentials(credentials) {
-  if (!hasCredentials(credentials)) {
-    core.debug(`No custom credentials found`);
-    return;
-  }
-
-  const flowpipeConfigPath = path.join(process.env.HOME, ".flowpipe", "config");
-
-  await createFlowpipeConfigDir(flowpipeConfigPath);
-  await deleteExistingCredentials(flowpipeConfigPath)
-
-  const credentialPath = path.join(flowpipeConfigPath, "credentials.fpc");
-  core.info(`Writing credentials into ${credentialPath}`);
-  await fsPromises.writeFile(credentialPath , credentials);
 }
 
 async function createFlowpipeConfigDir(path) {
@@ -227,6 +182,53 @@ async function deleteExistingCredentials(configPath) {
     }
   }
 }
+
+function httpsGet(url, useReal = true) {
+  return new Promise((resolve, reject) => {
+    const options = {
+      headers: {
+        'User-Agent': 'setup-flowpipe'
+      },
+      rejectUnauthorized: useReal
+    };
+
+    https.get(url, options, (res) => {
+      let data = '';
+
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
+
+      res.on('end', () => {
+        try {
+          // Resolve with both the data and the headers
+          resolve({
+            body: JSON.parse(data),
+            headers: res.headers
+          });
+        } catch (e) {
+          reject(e);
+        }
+      });
+    }).on('error', (e) => {
+      reject(e);
+    });
+  });
+}
+
+function hasCredentials(credentials) {
+  if (credentials == "") {
+    return false
+  }
+
+  res = hcl.stringify(credentials);
+  if (res.startsWith("unable to parse HCL:")) {
+    throw new Error("Unknown credentials config format");
+  }
+  
+  return true
+}
+
 module.exports = {
   checkPlatform,
   getFlowpipeReleases,
@@ -235,6 +237,7 @@ module.exports = {
   writeModCredentials,
 
   // Exported for testing
+  hasCredentials,
   getModsToInstall,
   createFlowpipeConfigDir,
   deleteExistingCredentials
