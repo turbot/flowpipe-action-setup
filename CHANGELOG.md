@@ -1,5 +1,5 @@
-## v1.0.0 [2024-01-17]
+## v1.0.0 [2024-01-18]
 
 _What's new?_
 
-- Initial commit
+- Initial release of the Setup Flowpipe action that allows installation of Flowpipe and setting up credentials.
