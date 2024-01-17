@@ -67,11 +67,13 @@ steps:
         }
   - name: Install mod and run pipeline
     run: |
-        mkdir my-test
-        cd my-test
+        mkdir pipelines
+        cd pipelines
         flowpipe mod install github.com/turbot/flowpipe-mod-github
         flowpipe pipeline run github.pipeline.search_repositories --arg 'search_value=owner:turbot'
 ```
+
+Pipeline that searches for GitHub repositories owned by 'turbot', extracting information such as creation date and popularity metrics. 
 
 ## Helpful Links
 
