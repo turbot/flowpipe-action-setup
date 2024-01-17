@@ -66,7 +66,6 @@ describe('writeModCredentials', () => {
     const flowpipeConfigPath = path.join(process.env.HOME, ".flowpipe", "config");
     const credentialPath = path.join(flowpipeConfigPath, "credentials.fpc");
 
-    expect(mkdirSpy).toHaveBeenCalledWith(flowpipeConfigPath, { recursive: true });
     expect(writeFileSpy).toHaveBeenCalledWith(credentialPath, credentials);
     expect(core.info).toHaveBeenCalledWith(`Writing credentials into ${credentialPath}`);
   });

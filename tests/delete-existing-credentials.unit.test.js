@@ -1,50 +1,59 @@
+const fs = require('fs');
+const path = require('path');
 const core = require('@actions/core');
-const fsPromises = require('fs').promises;
-const {
-  deleteExistingCredentials
-} = require("../installer");
+const { deleteExistingCredentials } = require('../installer');
 
 jest.mock('@actions/core');
 
 describe('deleteExistingCredentials', () => {
-  const originalHome = process.env.HOME;
+  let readdirSpy, unlinkSpy;
 
   beforeEach(() => {
-    process.env.HOME = '/mocked/home';
-    jest.spyOn(fsPromises, 'readdir').mockResolvedValue([]);
-    jest.spyOn(fsPromises, 'unlink').mockResolvedValue();
+    // Set up spies
+    readdirSpy = jest.spyOn(fs.promises, 'readdir').mockResolvedValue([]);
+    unlinkSpy = jest.spyOn(fs.promises, 'unlink').mockResolvedValue();
+
+    // Clear all mocks before each test
+    jest.clearAllMocks();
   });
 
   afterEach(() => {
     jest.restoreAllMocks();
-    process.env.HOME = originalHome;
   });
 
-  test('successfully deletes files, excluding specified file', async () => {
-    const mockFiles = ['credentials.toml', 'config.toml', 'workspaces.fpc.sample'];
-    fsPromises.readdir.mockResolvedValue(mockFiles);
-
-    await deleteExistingCredentials();
-
+  it('should delete all files except workspaces.fpc', async () => {
+    const testPath = '/test/path';
+    const files = ['file1.fp', 'workspaces.fpc', 'file2.fp'];
+  
+    readdirSpy.mockResolvedValue(files);
+  
+    await deleteExistingCredentials(testPath);
+  
     expect(core.info).toHaveBeenCalledWith('Deleting existing files in Flowpipe config directory');
-    expect(fsPromises.readdir).toHaveBeenCalledWith('/mocked/home/.steampipe/config');
-    expect(fsPromises.unlink).toHaveBeenCalledWith('/mocked/home/.steampipe/config/credentials.toml');
-    expect(fsPromises.unlink).toHaveBeenCalledWith('/mocked/home/.steampipe/config/config.toml');
-    expect(fsPromises.unlink).not.toHaveBeenCalledWith('/mocked/home/.steampipe/config/workspaces.fpc.sample');
+    expect(readdirSpy).toHaveBeenCalledWith(testPath);
+    expect(unlinkSpy).toHaveBeenCalledWith('/test/path/file1.fp'); // Direct string match
+    expect(unlinkSpy).toHaveBeenCalledWith('/test/path/file2.fp'); // Direct string match
+    expect(unlinkSpy).not.toHaveBeenCalledWith('/test/path/workspaces.fpc');
   });
 
-  test('handles errors during directory reading', async () => {
-    const readdirError = new Error('Failed to read directory');
-    fsPromises.readdir.mockRejectedValue(readdirError);
+  it('should handle empty directories without deleting files', async () => {
+    const testPath = '/empty/path';
+    readdirSpy.mockResolvedValue([]);
 
-    await expect(deleteExistingCredentials()).rejects.toThrow(readdirError);
+    await deleteExistingCredentials(testPath);
+
+    expect(readdirSpy).toHaveBeenCalledWith(testPath);
+    expect(unlinkSpy).not.toHaveBeenCalled();
   });
 
-  test('handles errors during file deletion', async () => {
-    fsPromises.readdir.mockResolvedValue(['credentials.toml']);
-    const unlinkError = new Error('Failed to delete file');
-    fsPromises.unlink.mockRejectedValueOnce(unlinkError);
+  it('should handle errors thrown by readdir', async () => {
+    const testPath = '/error/path';
+    const error = new Error('Filesystem error');
+    readdirSpy.mockRejectedValue(error);
 
-    await expect(deleteExistingCredentials()).rejects.toThrow(unlinkError);
+    await expect(deleteExistingCredentials(testPath)).rejects.toThrow('Filesystem error');
+
+    expect(readdirSpy).toHaveBeenCalledWith(testPath);
+    expect(unlinkSpy).not.toHaveBeenCalled();
   });
 });

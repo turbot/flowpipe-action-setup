@@ -8,6 +8,7 @@ const {
   getVersionFromSpec,
   installFlowpipe,
   writeModCredentials,
+  createWorkspacesConfig,
 } = require("./installer");
 
 async function run() {
@@ -43,7 +44,7 @@ async function run() {
 
     // // Create default.spc with "update_check = false" before initialization
     // // to prevent the CLI update check too
-    // await createDefaultFpc();
+    await createWorkspacesConfig();
 
     core.debug(`Executing Flowpipe version information`);
     const options = { silent: false };

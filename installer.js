@@ -128,13 +128,23 @@ async function writeModCredentials(credentials) {
   }
 
   const flowpipeConfigPath = path.join(process.env.HOME, ".flowpipe", "config");
-
-  await createFlowpipeConfigDir(flowpipeConfigPath);
   await deleteExistingCredentials(flowpipeConfigPath)
 
   const credentialPath = path.join(flowpipeConfigPath, "credentials.fpc");
   core.info(`Writing credentials into ${credentialPath}`);
-  await fsPromises.writeFile(credentialPath , credentials);
+  await fsPromises.writeFile(credentialPath, credentials);
+}
+
+async function createWorkspacesConfig() {
+  const content = `
+  workspace "default" {
+    update_check = false
+  }`;
+  
+  const flowpipeConfigPath = path.join(process.env.HOME, ".flowpipe", "config");
+  const workspacesPath = path.join(flowpipeConfigPath, "workspaces.fpc");
+  await fsPromises.mkdir(flowpipeConfigPath, { recursive: true });
+  await fsPromises.writeFile(workspacesPath, content);
 }
 
 function getModsToInstall(credentials) {
@@ -160,25 +170,19 @@ function getModsToInstall(credentials) {
       }
     }
   }
-  
-  return (Array.from(uniqueCredentials).sort());
-}
 
-async function createFlowpipeConfigDir(path) {
-  core.debug("Create Flowpipe config directory");
-  await fsPromises.mkdir(path, { recursive: true });
+  return (Array.from(uniqueCredentials).sort());
 }
 
 async function deleteExistingCredentials(configPath) {
   core.info("Deleting existing files in Flowpipe config directory");
-  let contents = await fsPromises.readdir(
-    `${process.env.HOME}/.steampipe/config`
-  );
+  let contents = await fsPromises.readdir(configPath);
 
   for (const entry of contents) {
-    if (entry !== 'workspaces.fpc.sample') {
+    if (entry !== 'workspaces.fpc') {
       core.debug("Removing file: " + entry);
-      await fsPromises.unlink(`${process.env.HOME}/.steampipe/config/${entry}`);
+      entryPath = path.join(configPath, entry);
+      await fsPromises.unlink(entryPath);
     }
   }
 }
@@ -225,7 +229,7 @@ function hasCredentials(credentials) {
   if (res.startsWith("unable to parse HCL:")) {
     throw new Error("Unknown credentials config format");
   }
-  
+
   return true
 }
 
@@ -235,10 +239,10 @@ module.exports = {
   getVersionFromSpec,
   installFlowpipe,
   writeModCredentials,
+  createWorkspacesConfig,
 
   // Exported for testing
   hasCredentials,
   getModsToInstall,
-  createFlowpipeConfigDir,
   deleteExistingCredentials
 };
