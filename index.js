@@ -9,7 +9,7 @@ const {
   installFlowpipe,
   writeModCredentials,
   createWorkspacesConfig,
-} = require("../installer");
+} = require("./installer");
 
 async function run() {
   try {
