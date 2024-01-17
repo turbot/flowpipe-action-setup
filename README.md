@@ -15,7 +15,7 @@ See [action.yml](action.yml).
 ### Install the latest version Flowpipe
 
 ```yaml
-- name: Install Steampipe
+- name: Install Flowpipe
   uses: turbot/flowpipe-action-setup@v1
 ```
 
@@ -31,8 +31,8 @@ See [action.yml](action.yml).
 ### Configure multiple AWS connections
 
 ```yaml
-- name: Setup Steampipe
-  uses: turbot/steampipe-action-setup@v1
+- name: Setup Flowpipe
+  uses: turbot/flowpipe-action-setup@v1
   with:
     mod-credentials: |
       credential "aws" "aws_prod" {
