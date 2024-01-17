@@ -1,5 +1,6 @@
 const core = require('@actions/core');
 const tc = require('@actions/tool-cache');
+const fsPromises = require('fs').promises;
 const https = require("https");
 const { Readable } = require("stream");
 const {
@@ -7,8 +8,13 @@ const {
   getFlowpipeReleases,
   getVersionFromSpec,
   getModsToInstall,
-  installFlowpipe
+  installFlowpipe,
+
+  createFlowpipeConfigDir,
 } = require("./installer");
+
+jest.mock('@actions/core');
+jest.mock('@actions/tool-cache');
 
 jest.mock("https", () => ({
   get: jest.fn(),
@@ -227,8 +233,32 @@ describe("getVersionFromSpec", () => {
   });
 });
 
-jest.mock('@actions/core');
-jest.mock('@actions/tool-cache');
+describe('createFlowpipeConfigDir', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  test('successfully creates a directory', async () => {
+    const path = '/path/to/config';
+    jest.spyOn(fsPromises, 'mkdir').mockResolvedValue();
+
+    await createFlowpipeConfigDir(path);
+
+    expect(fsPromises.mkdir).toHaveBeenCalledWith(path, { recursive: true });
+    expect(core.debug).toHaveBeenCalledWith('Create Flowpipe config directory');
+  });
+
+  test('handles errors during directory creation', async () => {
+    const path = '/path/to/config';
+    const error = new Error('Mocked error');
+    jest.spyOn(fsPromises, 'mkdir').mockRejectedValue(error);
+
+    await expect(createFlowpipeConfigDir(path)).rejects.toThrow(error);
+
+    expect(fsPromises.mkdir).toHaveBeenCalledWith(path, { recursive: true });
+    expect(core.debug).toHaveBeenCalledWith('Create Flowpipe config directory');
+  });
+});
 
 describe('installFlowpipe', () => {
   afterEach(() => {

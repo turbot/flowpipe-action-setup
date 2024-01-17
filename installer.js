@@ -4,7 +4,7 @@ const hcl = require("js-hcl-parser");
 const semver = require("semver");
 const https = require("https");
 const process = require("process");
-const { stringify } = require("querystring");
+const fsPromises = require('fs').promises;
 
 const supportedPlatforms = ["linux", "darwin"];
 const supportedArchitectures = ["x64", "arm64"];
