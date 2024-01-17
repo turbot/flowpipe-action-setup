@@ -46,6 +46,7 @@ See [action.yml](action.yml).
         session_token = "${{ secrets.DEV_AWS_SESSION_TOKEN }}"
       }
 ```
+
 > For further information on credentials refer to [Managing Credentials](https://flowpipe.io/docs/run/credentials) or for available Flowpipe versions refer to [Flowpipe Releases](https://github.com/turbot/flowpipe/releases).
 
 ## Helpful Links
