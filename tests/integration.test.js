@@ -1,6 +1,6 @@
 const {
   getFlowpipeReleases,
-} = require("./installer");
+} = require("../installer");
 
 describe("getFlowpipeReleases Integration", () => {
   it("should fetch data from GitHub API and limit the returned results", async () => {
