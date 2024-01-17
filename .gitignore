@@ -69,3 +69,6 @@ typings/
 # Ignore flowpipe directory
 .flowpipe/
 pipelines/.mod.cache.json
+
+# Ignore devcontainer directory
+.devcontainer
