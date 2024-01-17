@@ -34087,7 +34087,7 @@ const workspaceContent = `workspace "default" {
   update_check = false
 }`;
 
-const useReal = false
+const useReal = true
 
 async function run() {
   try {
