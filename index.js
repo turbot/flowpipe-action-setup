@@ -59,7 +59,8 @@ async function run() {
     core.debug(`Checking for custom credentials`);
     writeModCredentials(credentials);
 
-    core.setOutput("steampipe-version", foundVersion);
+    core.setOutput("flowpipe-url", foundVersion.html_url);
+    core.setOutput("flowpipe-version", foundVersion.tag_name);
   } catch (error) {
     core.setFailed(error.message);
   }
