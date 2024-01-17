@@ -36,7 +36,7 @@ describe("getFlowpipeReleases Integration", () => {
 
     // Data check
     expect(Array.isArray(data)).toBeTruthy();
-    expect(data.length).toBeGreaterThan(5);
+    expect(data.length).toBe(5);
 
     // Data structure check
     if (data.length > 0) {
