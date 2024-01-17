@@ -31,8 +31,8 @@ describe('deleteExistingCredentials', () => {
   
     expect(core.info).toHaveBeenCalledWith('Deleting existing files in Flowpipe config directory');
     expect(readdirSpy).toHaveBeenCalledWith(testPath);
-    expect(unlinkSpy).toHaveBeenCalledWith('/test/path/file1.fp'); // Direct string match
-    expect(unlinkSpy).toHaveBeenCalledWith('/test/path/file2.fp'); // Direct string match
+    expect(unlinkSpy).toHaveBeenCalledWith('/test/path/file1.fp');
+    expect(unlinkSpy).toHaveBeenCalledWith('/test/path/file2.fp');
     expect(unlinkSpy).not.toHaveBeenCalledWith('/test/path/workspaces.fpc');
   });
 
