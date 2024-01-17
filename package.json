@@ -7,7 +7,7 @@
     "clean": "rm -rf ./dist",
     "lint": "eslint .",
     "prepare": "ncc build index.js -o dist --source-map --license licenses.txt",
-    "test": "jest ./tests/check-platform.unit.test.js ./tests/delete-existing-credentials.unit.test.js ./tests/get-flowpipe-releases.unit.test.js ./tests/get-mods-to-install.unit.test.js ./tests/get-version-from-spec.unit.test.js ./tests/install-flowpipe.unit.test.js ./tests/write-mod-credentials.unit.test.js",
+    "test": "jest ./tests/check-platform.unit.test.js ./tests/delete-existing-credentials.unit.test.js ./tests/get-flowpipe-releases.unit.test.js ./tests/get-mods-to-install.unit.test.js ./tests/get-version-from-spec.unit.test.js ./tests/install-flowpipe.unit.test.js ./tests/write-mod-credentials.unit.test.js ./tests/create-workspaces-config.unit.test.js",
     "test-integration": "jest ./tests/integration.test.js",
     "all": "npm run lint && npm run prepare && npm run test"
   },
