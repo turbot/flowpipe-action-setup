@@ -36,14 +36,14 @@ See [action.yml](action.yml).
   with:
     mod-credentials: |
       credential "aws" "aws_prod" {
-        access_key = "AKIA..."
-        secret_key = "dP+C+J..."
+        access_key = "${{ secrets.AWS_ACCESS_KEY }}"
+        secret_key = "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
       }
 
       credential "aws" "aws_dev" {
-        access_key    = "AKIA..."
-        secret_key    = "dP+C+J..."
-        session_token = "AQoDX..."
+        access_key    = "${{ secrets.DEV_AWS_ACCESS_KEY }}"
+        secret_key    = "${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}"
+        session_token = "${{ secrets.DEV_AWS_SESSION_TOKEN }}"
       }
 ```
 > For further information on credentials refer to [Managing Credentials](https://flowpipe.io/docs/run/credentials) or for available Flowpipe versions refer to [Flowpipe Releases](https://github.com/turbot/flowpipe/releases).
