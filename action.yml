@@ -12,7 +12,7 @@ inputs:
     default: latest
     required: false
   mod-credentials:
-    description: Flowpipe connections to create. Accepts HCL format.
+    description: Flowpipe credentials to create. Accepts HCL format.
     required: false
 outputs:
   flowpipe-version:
