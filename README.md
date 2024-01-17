@@ -15,7 +15,7 @@ See [action.yml](action.yml).
 ### Install the latest version Flowpipe
 
 ```yaml
-- name: Install Steampipe
+- name: Install Flowpipe
   uses: turbot/flowpipe-action-setup@v1
 ```
 
@@ -31,8 +31,8 @@ See [action.yml](action.yml).
 ### Configure multiple AWS connections
 
 ```yaml
-- name: Setup Steampipe
-  uses: turbot/steampipe-action-setup@v1
+- name: Setup Flowpipe
+  uses: turbot/flowpipe-action-setup@v1
   with:
     mod-credentials: |
       credential "aws" "aws_prod" {
@@ -48,6 +48,32 @@ See [action.yml](action.yml).
 ```
 
 > For further information on credentials refer to [Managing Credentials](https://flowpipe.io/docs/run/credentials) or for available Flowpipe versions refer to [Flowpipe Releases](https://github.com/turbot/flowpipe/releases).
+
+
+## Advanced Examples
+
+### Run local controls
+
+```yaml
+steps:
+  - uses: actions/checkout@v3
+  - name: Setup Flowpipe
+    uses: turbot/flowpipe-action-setup@main
+    with:
+      flowpipe-version: 'latest'
+      mod-credentials: |
+        credential "github" "default" {
+          token = "${{ secrets.GH_TOKEN }}"
+        }
+  - name: Install mod and run pipeline
+    run: |
+        mkdir pipelines
+        cd pipelines
+        flowpipe mod install github.com/turbot/flowpipe-mod-github
+        flowpipe pipeline run github.pipeline.search_repositories --arg 'search_value=owner:turbot'
+```
+
+Pipeline that searches for GitHub repositories owned by 'turbot', extracting information such as creation date and popularity metrics. 
 
 ## Helpful Links
 
