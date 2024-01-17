@@ -15,6 +15,8 @@ const workspaceContent = `workspace "default" {
   update_check = false
 }`;
 
+const useReal = false
+
 async function run() {
   try {
     core.debug("Starting Flowpipe CLI setup");
@@ -23,9 +25,9 @@ async function run() {
     const version = core.getInput("flowpipe-version", { required: false });
     const credentials = core.getInput("mod-credentials", { required: false });
 
-    // Limit to last 300 releases to reduce API calls
-    core.debug("Retrieving last 300 Flowpipe releases");
-    const flowpipeReleases = await getFlowpipeReleases(undefined, 300, false);
+    // Limit to last 100 releases to reduce API calls
+    core.debug("Retrieving last 100 Flowpipe releases");
+    const flowpipeReleases = await getFlowpipeReleases(undefined, 100, useReal);
     core.debug("Checking for requested version");
     const foundVersion = getVersionFromSpec(flowpipeReleases, version);
 
