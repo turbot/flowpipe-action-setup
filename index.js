@@ -11,6 +11,10 @@ const {
   createWorkspacesConfig,
 } = require("./installer");
 
+const workspaceContent = `workspace "default" {
+  update_check = false
+}`;
+
 async function run() {
   try {
     core.debug("Starting Flowpipe CLI setup");
@@ -42,9 +46,9 @@ async function run() {
     core.addPath(flowpipePath);
     core.debug(`Added Flowpipe CLI to path`);
 
-    // // Create default.spc with "update_check = false" before initialization
+    // // Create workspaces.fpc with "update_check = false" before initialization
     // // to prevent the CLI update check too
-    await createWorkspacesConfig();
+    await createWorkspacesConfig(workspaceContent);
 
     core.debug(`Executing Flowpipe version information`);
     const options = { silent: false };

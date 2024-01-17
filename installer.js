@@ -135,12 +135,7 @@ async function writeModCredentials(credentials) {
   await fsPromises.writeFile(credentialPath, credentials);
 }
 
-async function createWorkspacesConfig() {
-  const content = `
-  workspace "default" {
-    update_check = false
-  }`;
-  
+async function createWorkspacesConfig(content) { 
   const flowpipeConfigPath = path.join(process.env.HOME, ".flowpipe", "config");
   const workspacesPath = path.join(flowpipeConfigPath, "workspaces.fpc");
   await fsPromises.mkdir(flowpipeConfigPath, { recursive: true });

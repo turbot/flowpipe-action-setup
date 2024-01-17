@@ -25,16 +25,16 @@ describe('createWorkspacesConfig', () => {
   });
 
   it('should create the workspaces config file with correct content', async () => {
-    await createWorkspacesConfig();
+    const content = `
+    workspace "default" {
+      update_check = false
+    }`;
 
+    await createWorkspacesConfig(content);
     const flowpipeConfigPath = path.join(process.env.HOME, ".flowpipe", "config");
     const workspacesPath = path.join(flowpipeConfigPath, "workspaces.fpc");
-    const expectedContent = `
-  workspace "default" {
-    update_check = false
-  }`;
 
     expect(mkdirSpy).toHaveBeenCalledWith(flowpipeConfigPath, { recursive: true });
-    expect(writeFileSpy).toHaveBeenCalledWith(workspacesPath, expectedContent);
+    expect(writeFileSpy).toHaveBeenCalledWith(workspacesPath, content);
   });
 });
