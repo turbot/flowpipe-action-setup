@@ -4,7 +4,7 @@
   <a href="https://github.com/turbot/flowpipe-action-setup/actions"><img alt="flowpipe-action status" src="https://github.com/turbot/flowpipe-action-setup/workflows/units-test/badge.svg"></a>
 </p>
 
-This action installs [Flowpipe](https://github.com/turbot/flowpipe/) and optionally installs plugins and creates plugin connection configurations.
+This action installs [Flowpipe](https://github.com/turbot/flowpipe/) and optionally sets up Flowpipe credential configurations.
 
 ## Usage
 
@@ -28,7 +28,7 @@ See [action.yml](action.yml).
     flowpipe-version: 0.19.4
 ```
 
-### Configure multiple AWS connections
+### Configure multiple AWS credentials
 
 ```yaml
 - name: Setup Flowpipe
@@ -49,10 +49,7 @@ See [action.yml](action.yml).
 
 > For further information on credentials refer to [Managing Credentials](https://flowpipe.io/docs/run/credentials) or for available Flowpipe versions refer to [Flowpipe Releases](https://github.com/turbot/flowpipe/releases).
 
-
-## Advanced Examples
-
-### Run Flowpipe Mod pipeline
+### Run a Flowpipe Github Mod pipeline
 
 ```yaml
 steps:
@@ -73,7 +70,7 @@ steps:
         flowpipe pipeline run github.pipeline.search_repositories --arg 'search_value=owner:turbot'
 ```
 
-Pipeline that searches for GitHub repositories owned by 'turbot', extracting information such as creation date and popularity metrics. 
+Pipeline that searches for GitHub repositories owned by 'turbot', extracting information such as creation date and popularity metrics.
 
 ## Helpful Links
 
