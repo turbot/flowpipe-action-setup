@@ -4,7 +4,7 @@
   <a href="https://github.com/turbot/flowpipe-action-setup/actions"><img alt="flowpipe-action status" src="https://github.com/turbot/flowpipe-action-setup/workflows/units-test/badge.svg"></a>
 </p>
 
-This action installs [Flowpipe](https://github.com/turbot/flowpipe/) and optionally sets up Flowpipe credential configurations.
+This action installs [Flowpipe](https://github.com/turbot/flowpipe/) and optionally configures Flowpipe credentials.
 
 ## Usage
 
