@@ -142,6 +142,7 @@ async function createWorkspacesConfig(content) {
   await fsPromises.writeFile(workspacesPath, content);
 }
 
+// NOTE: Function getModsToInstall is not currently being used
 function getModsToInstall(credentials) {
   if (!hasCredentials(credentials)) {
     return [];
@@ -152,7 +153,7 @@ function getModsToInstall(credentials) {
 
   if (!Object.getOwnPropertyDescriptor(credentialsJsonParsed, "credential")) {
     throw new Error(
-      "Missing 'credential' key in mod-credentials input"
+      "Missing 'credential' key in flowpipe-config input"
     );
   }
 
