@@ -148,6 +148,7 @@ async function createWorkspacesConfig(content) {
   await fsPromises.writeFile(workspacesPath, content);
 }
 
+// NOTE: Function getModsToInstall is not currently being used
 function getModsToInstall(credentials) {
   if (!hasCredentials(credentials)) {
     return [];
@@ -158,7 +159,7 @@ function getModsToInstall(credentials) {
 
   if (!Object.getOwnPropertyDescriptor(credentialsJsonParsed, "credential")) {
     throw new Error(
-      "Missing 'credential' key in mod-credentials input"
+      "Missing 'credential' key in flowpipe-config input"
     );
   }
 
@@ -34095,7 +34096,7 @@ async function run() {
     checkPlatform();
 
     const version = core.getInput("flowpipe-version", { required: false });
-    const credentials = core.getInput("mod-credentials", { required: false });
+    const credentials = core.getInput("flowpipe-config", { required: false });
 
     // Limit to last 100 releases to reduce API calls
     core.debug("Retrieving last 100 Flowpipe releases");

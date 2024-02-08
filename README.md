@@ -34,7 +34,7 @@ See [action.yml](action.yml).
 - name: Setup Flowpipe
   uses: turbot/flowpipe-action-setup@v1
   with:
-    mod-credentials: |
+    flowpipe-config: |
       credential "aws" "aws_prod" {
         access_key = "${{ secrets.AWS_ACCESS_KEY }}"
         secret_key = "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
@@ -58,7 +58,7 @@ steps:
     uses: turbot/flowpipe-action-setup@main
     with:
       flowpipe-version: 'latest'
-      mod-credentials: |
+      flowpipe-config: |
         credential "github" "default" {
           token = "${{ secrets.GH_TOKEN }}"
         }

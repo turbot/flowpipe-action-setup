@@ -23,7 +23,7 @@ async function run() {
     checkPlatform();
 
     const version = core.getInput("flowpipe-version", { required: false });
-    const credentials = core.getInput("mod-credentials", { required: false });
+    const credentials = core.getInput("flowpipe-config", { required: false });
 
     // Limit to last 100 releases to reduce API calls
     core.debug("Retrieving last 100 Flowpipe releases");

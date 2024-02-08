@@ -11,7 +11,7 @@ inputs:
     description: 'Flowpipe CLI version to install. Defaults to "latest". Examples: latest, 0.1.0, 0.2.2.'
     default: latest
     required: false
-  mod-credentials:
+  flowpipe-config:
     description: Flowpipe credentials to create. Accepts HCL format.
     required: false
 outputs:

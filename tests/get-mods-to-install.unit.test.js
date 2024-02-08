@@ -34,7 +34,7 @@ describe('getModsToInstall', () => {
       secret_key = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
     }`;
 
-    expect(() => getModsToInstall(validHclWithoutCredential)).toThrow("Missing 'credential' key in mod-credentials input");
+    expect(() => getModsToInstall(validHclWithoutCredential)).toThrow("Missing 'credential' key in flowpipe-config input");
   });
 
   it('should return connection data for valid input', () => {
