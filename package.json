@@ -1,6 +1,6 @@
 {
   "name": "setup-flowpipe",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Install flowpipe on github actions.",
   "main": "index.js",
   "scripts": {
