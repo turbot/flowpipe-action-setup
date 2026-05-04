@@ -18,6 +18,5 @@ outputs:
   flowpipe-version:
     description: The version of Flowpipe that was installed.
 runs:
-  # Latest version of Node.js 20.x at time of writing.
-  using: node20
+  using: node24
   main: dist/index.js
